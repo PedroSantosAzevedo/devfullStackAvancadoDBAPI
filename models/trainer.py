@@ -15,3 +15,10 @@ class Trainer(Base):
         self.name = name
         self.number_of_encounters = number_of_encounters
         self.current_location = current_location
+
+    def to_dict(self):
+        return {
+            "name": self.name,
+            "number_of_encounters": self.number_of_encounters,
+            "current_location": self.current_location
+        }
