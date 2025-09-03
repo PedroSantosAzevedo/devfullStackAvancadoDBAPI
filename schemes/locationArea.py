@@ -24,14 +24,10 @@ class EncounterDetail(BaseModel):
     chance: int
     method: NamedAPIResource
 
-class PokemonEncounterVersionDetail(BaseModel):
-    version: NamedAPIResource
-    max_chance: int
-    encounter_details: List[EncounterDetail]
-
 class PokemonEncounter(BaseModel):
     pokemon: NamedAPIResource
-    version_details: List[PokemonEncounterVersionDetail]
+    class Config:
+        extra = "ignore"
 
 class LocationArea(BaseModel):
     id: int

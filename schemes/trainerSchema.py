@@ -9,6 +9,7 @@ class TrainerSchema(BaseModel):
     name: str = "John Doe"
     number_of_encounters: int = 0
     current_location: str = "Unknown"
+    # pokemons: List[PokemonSchema] = []
 
     class Config:
         from_attributes = True

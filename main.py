@@ -9,7 +9,9 @@ from schemes.locationArea import *
 from schemes import TrainerSchema    
 from sqlalchemy.orm import Session
 from models.trainer import *
+from schemes.pokemonSchema import PokemonSchema
 from schemes.trainerSchema import *
+import json
 
 app = FastAPI()
 engine = create_engine('sqlite:///./test.db', connect_args={"check_same_thread": False})
@@ -39,15 +41,45 @@ async def get_random_location(trainer_name: str):
             return JSONResponse(content={"trainer": trainerSchema.model_dump()}, status_code=200)
         else:
             return JSONResponse(content={"error": "Location not found"}, status_code=404)
-
-@app.get("/randomArea/{area_id}")
-async def get_random_area(area_id: int):
+        
+@app.get("/location/{locationName}")
+async def get_location(locationName: str):
     async with httpx.AsyncClient() as client:
-        response = await client.get(f"https://pokeapi.co/api/v2/location-area/{area_id}")
+        response = await client.get(f"https://pokeapi.co/api/v2/location/{locationName}")
         if response.status_code == 200:
             data = response.json()
-            loc =  LocationArea(**data)
-            return JSONResponse(content=loc.pokemon_encounters[0].model_dump_json())
+            loc =  Location(**data)
+            return JSONResponse(content={"location": loc.model_dump()}, status_code=200)
+        else:
+            return JSONResponse(content={"error": "Location not found"}, status_code=404)
+        
+@app.get("/randomArea/{location_name}")
+async def get_random_area(location_name: str):
+    async with httpx.AsyncClient() as client:
+        location_response = await get_location(location_name)
+        location_data = location_response.body.decode()
+        
+        location_dict = json.loads(location_data)["location"]
+        location = Location(**location_dict)
+        random_area = location.areas[random.randint(0, len(location.areas)-1)]
+        response = await client.get(random_area.url)
+        if response.status_code == 200:
+            data = response.json()
+            return JSONResponse(content=data)
+        else:
+            return JSONResponse(content={"error": "Location not found"}, status_code=404)     
+
+@app.get("/getAreaRandomPokemon/{location_name}")
+async def get_area_random_pokemon(location_name: str):
+    async with httpx.AsyncClient() as client:
+        area_response = await get_random_area(location_name)
+        area_data = area_response.body.decode()
+        area = LocationArea(**json.loads(area_data))
+        randomEncounter = area.pokemon_encounters[random.randint(0, len(area.pokemon_encounters)-1)]
+        response = await client.get(randomEncounter.pokemon.url)
+        if response.status_code == 200:
+            pokemon = PokemonSchema(**response.json())
+            return JSONResponse(content=pokemon.model_dump_json())
         else:
             return JSONResponse(content={"error": "Location not found"}, status_code=404)
 
