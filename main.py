@@ -68,8 +68,9 @@ async def get_trainer(trainer_name: str):
     db = SessionLocal()
     close_db = True
     trainer = db.query(Trainer).filter(Trainer.name == trainer_name).first()
+    trainerScheme = TrainerSchema.model_validate(trainer)
     if trainer:
-        return JSONResponse("trainer", status_code=200)
+        return JSONResponse(trainerScheme.model_dump(), status_code=200)
     else:
         return JSONResponse(content={"error": "Trainer not found"}, status_code=404)
 
@@ -81,9 +82,10 @@ async def delete_trainer(trainer_name: str):
     if db_trainer:
         db.delete(db_trainer)
         db.commit()
+        trainerScheme = TrainerSchema.model_validate(db_trainer)
         if close_db:
             db.close()
-        return JSONResponse(content={"message": "Trainer deleted successfully"}, status_code=200)
+        return JSONResponse(content={"message": "Trainer deleted successfully", "trainer": trainerScheme.model_dump()}, status_code=200)
     else:
         if close_db:
             db.close()
