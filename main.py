@@ -4,6 +4,7 @@ from fastapi.responses import JSONResponse
 import httpx
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, session
+from models.pokemon import Pokemon
 from schemes.location import *
 from schemes.locationArea import *
 from schemes import TrainerSchema    
@@ -79,6 +80,12 @@ async def get_area_random_pokemon(location_name: str):
         response = await client.get(randomEncounter.pokemon.url)
         if response.status_code == 200:
             pokemon = PokemonSchema(**response.json())
+            pokemonDB = Pokemon(**pokemon.model_dump(), trainer_name="Pedro")
+            db = SessionLocal()
+            db.add(pokemonDB)
+            db.commit()
+            db.refresh(pokemonDB)
+            db.close()
             return JSONResponse(content=pokemon.model_dump_json())
         else:
             return JSONResponse(content={"error": "Location not found"}, status_code=404)
