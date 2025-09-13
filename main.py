@@ -82,6 +82,7 @@ async def get_trainer(trainer_name: str):
 
 @app.delete("/deleteTrainer/{trainer_name}")
 async def delete_trainer(trainer_name: str):
+    print("entrou no delete")
     db = SessionLocal()
     close_db = True
     db_trainer = db.query(Trainer).filter(Trainer.name == trainer_name).first()

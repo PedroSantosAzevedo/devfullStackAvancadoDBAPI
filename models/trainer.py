@@ -13,7 +13,7 @@ class Trainer(Base):
     number_of_encounters = Column(Integer, default=0)
     current_location = Column(String(100), nullable=True)
     
-    pokemons = relationship("Pokemon", back_populates="trainer")
+    pokemons = relationship("Pokemon", back_populates="trainer", cascade="all, delete-orphan")
 
     def __init__(self, name: str,  number_of_encounters: int, current_location: str):
         self.name = name
