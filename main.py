@@ -10,11 +10,20 @@ from schemes.locationArea import *
 from schemes import TrainerSchema    
 from sqlalchemy.orm import Session
 from models.trainer import *
-from schemes.pokemonSchema import PokemonSchema
+from schemes.pokemonSchema import DeletePokemonSchema, PokemonSchema
 from schemes.trainerSchema import *
 import json
+import fastapi.middleware.cors as cors
+
 
 app = FastAPI()
+app.add_middleware(
+    cors.CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 engine = create_engine('sqlite:///./test.db', connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
@@ -23,6 +32,11 @@ Base.metadata.create_all(engine)
 @app.get("/")
 def home():
     return JSONResponse(content={"message": "Welcome to pokeServer by Pedro"})
+
+@app.get("/ping")
+def ping():
+    return JSONResponse(content={"response": "other api pong"})
+
 
 @app.get("/randomLocation/{trainer_name}")
 async def get_random_location(trainer_name: str):
@@ -130,3 +144,21 @@ async def delete_trainer(trainer_name: str):
             db.close()
         return JSONResponse(content={"error": "Trainer not found"}, status_code=404)
     
+@app.delete("/deletePokemon")
+async def delete_pokemon(deleteInfo: DeletePokemonSchema):
+    print("entrou no delete")
+    db = SessionLocal()
+    close_db = True
+    from sqlalchemy import and_
+    db_pokemon = db.query(Pokemon).filter(and_(Pokemon.id == deleteInfo.pokemon_id, Pokemon.trainer_name == deleteInfo.trainer_name)).first()
+    if db_pokemon:
+        db.delete(db_pokemon)
+        db.commit()
+        pokemonScheme = PokemonSchema.model_validate(db_pokemon)
+        if close_db:
+            db.close()
+        return JSONResponse(content={"message": "Pokemon deleted successfully", "pokemon": pokemonScheme.model_dump()}, status_code=200)
+    else:
+        if close_db:
+            db.close()
+        return JSONResponse(content={"error": "Pokemon not found"}, status_code=404)

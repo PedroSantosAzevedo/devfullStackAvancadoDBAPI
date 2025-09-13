@@ -9,7 +9,7 @@ class Trainer(Base):
     __tablename__ = 'trainer'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String(50), nullable=False)
+    name = Column(String(50), unique=True, nullable=False)
     number_of_encounters = Column(Integer, default=0)
     current_location = Column(String(100), nullable=True)
     
