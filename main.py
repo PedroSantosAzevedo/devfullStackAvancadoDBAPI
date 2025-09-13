@@ -1,18 +1,12 @@
-import random
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 import httpx
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, session
-from models.pokemon import Pokemon
-from schemes.location import *
-from schemes.locationArea import *
-from schemes import TrainerSchema    
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import sessionmaker
+from models import pokemon
+from models.pokemon import Pokemon  
 from models.trainer import *
-from schemes.pokemonSchema import DeletePokemonSchema, PokemonSchema
-from schemes.trainerSchema import *
-import json
+from schemes import *
 import fastapi.middleware.cors as cors
 
 
@@ -37,72 +31,77 @@ def home():
 def ping():
     return JSONResponse(content={"response": "other api pong"})
 
-
-@app.get("/randomLocation/{trainer_name}")
-async def get_random_location(trainer_name: str):
-    location = random.randint(1,10)
-    async with httpx.AsyncClient() as client:
-        response = await client.get(f"https://pokeapi.co/api/v2/location/{location}")
-        if response.status_code == 200:
-            data = response.json()
-            loc =  Location(**data)
-
-            db = SessionLocal()
-            trainer = db.query(Trainer).filter(Trainer.name == trainer_name).first()
-            trainer.current_location = loc.name
-            db.commit()
-            trainerSchema = TrainerSchema.model_validate(trainer)
+@app.patch("/updatePlayerLocation/")
+async def update_player_location(playerLocationSchema: PlayerLocationSchema):
+        db = SessionLocal()
+        print(playerLocationSchema.model_dump())
+        trainer = db.query(Trainer).filter(Trainer.name == playerLocationSchema.trainer_name).first()
+        if not trainer:
             db.close()
-            return JSONResponse(content={"trainer": trainerSchema.model_dump()}, status_code=200)
-        else:
-            return JSONResponse(content={"error": "Location not found"}, status_code=404)
-        
-@app.get("/location/{locationName}")
-async def get_location(locationName: str):
-    async with httpx.AsyncClient() as client:
-        response = await client.get(f"https://pokeapi.co/api/v2/location/{locationName}")
-        if response.status_code == 200:
-            data = response.json()
-            loc =  Location(**data)
-            return JSONResponse(content={"location": loc.model_dump()}, status_code=200)
-        else:
-            return JSONResponse(content={"error": "Location not found"}, status_code=404)
-        
-@app.get("/randomArea/{location_name}")
-async def get_random_area(location_name: str):
-    async with httpx.AsyncClient() as client:
-        location_response = await get_location(location_name)
-        location_data = location_response.body.decode()
-        
-        location_dict = json.loads(location_data)["location"]
-        location = Location(**location_dict)
-        random_area = location.areas[random.randint(0, len(location.areas)-1)]
-        response = await client.get(random_area.url)
-        if response.status_code == 200:
-            data = response.json()
-            return JSONResponse(content=data)
-        else:
-            return JSONResponse(content={"error": "Location not found"}, status_code=404)     
+            return JSONResponse(content={"error": "Player not found"}, status_code=404)
+        trainer.current_location = playerLocationSchema.new_location
+        db.commit()
+        trainerSchema = TrainerSchema.model_validate(trainer)
+        db.close()
+        return JSONResponse(trainerSchema.model_dump(), status_code=200)
 
-@app.get("/getAreaRandomPokemon/{location_name}")
-async def get_area_random_pokemon(location_name: str):
-    async with httpx.AsyncClient() as client:
-        area_response = await get_random_area(location_name)
-        area_data = area_response.body.decode()
-        area = LocationArea(**json.loads(area_data))
-        randomEncounter = area.pokemon_encounters[random.randint(0, len(area.pokemon_encounters)-1)]
-        response = await client.get(randomEncounter.pokemon.url)
-        if response.status_code == 200:
-            pokemon = PokemonSchema(**response.json())
-            pokemonDB = Pokemon(**pokemon.model_dump(), trainer_name="Pedro")
-            db = SessionLocal()
-            db.add(pokemonDB)
-            db.commit()
-            db.refresh(pokemonDB)
-            db.close()
-            return JSONResponse(content=pokemon.model_dump_json())
-        else:
-            return JSONResponse(content={"error": "Location not found"}, status_code=404)
+# @app.get("/randomLocation/{trainer_name}")
+# async def get_random_location(trainer_name: str):
+#     location = random.randint(1,10)
+#     async with httpx.AsyncClient() as client:
+#         response = await client.get(f"https://pokeapi.co/api/v2/location/{location}")
+#         if response.status_code == 200:
+#             data = response.json()
+#             loc =  Location(**data)
+
+#             db = SessionLocal()
+#             trainer = db.query(Trainer).filter(Trainer.name == trainer_name).first()
+#             trainer.current_location = loc.name
+#             db.commit()
+#             trainerSchema = TrainerSchema.model_validate(trainer)
+#             db.close()
+#             return JSONResponse(content={"trainer": trainerSchema.model_dump()}, status_code=200)
+#         else:
+#             return JSONResponse(content={"error": "Location not found"}, status_code=404)
+        
+# @app.get("/location/{locationName}")
+# async def get_location(locationName: str):
+#     async with httpx.AsyncClient() as client:
+#         response = await client.get(f"https://pokeapi.co/api/v2/location/{locationName}")
+#         if response.status_code == 200:
+#             data = response.json()
+#             loc =  Location(**data)
+#             return JSONResponse(content={"location": loc.model_dump()}, status_code=200)
+#         else:
+#             return JSONResponse(content={"error": "Location not found"}, status_code=404)
+        
+# @app.get("/randomArea/{location_name}")
+# async def get_random_area(location_name: str):
+#     async with httpx.AsyncClient() as client:
+#         location_response = await get_location(location_name)
+#         location_data = location_response.body.decode()
+        
+#         location_dict = json.loads(location_data)["location"]
+#         location = Location(**location_dict)
+#         random_area = location.areas[random.randint(0, len(location.areas)-1)]
+#         response = await client.get(random_area.url)
+#         if response.status_code == 200:
+#             data = response.json()
+#             return JSONResponse(content=data)
+#         else:
+#             return JSONResponse(content={"error": "Location not found"}, status_code=404)     
+
+@app.post("/capturePokemon/")
+async def capture_pokemon(capturePokemonSchema: CapturePokemonSchema):
+        print("finalmente entrou")
+        pokemon = PokemonSchema(**capturePokemonSchema.pokemon.model_dump())
+        pokemonDB = Pokemon(**pokemon.model_dump(), trainer_name=capturePokemonSchema.trainer.name)
+        db = SessionLocal()
+        db.add(pokemonDB)
+        db.commit()
+        db.refresh(pokemonDB)
+        db.close()
+        return JSONResponse(content={"pokemon": pokemon.model_dump()}, status_code=200)
 
 @app.post("/createTrainer")
 async def create_trainer(trainer: TrainerSchema):
