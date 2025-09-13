@@ -45,52 +45,6 @@ async def update_player_location(playerLocationSchema: PlayerLocationSchema):
         db.close()
         return JSONResponse(trainerSchema.model_dump(), status_code=200)
 
-# @app.get("/randomLocation/{trainer_name}")
-# async def get_random_location(trainer_name: str):
-#     location = random.randint(1,10)
-#     async with httpx.AsyncClient() as client:
-#         response = await client.get(f"https://pokeapi.co/api/v2/location/{location}")
-#         if response.status_code == 200:
-#             data = response.json()
-#             loc =  Location(**data)
-
-#             db = SessionLocal()
-#             trainer = db.query(Trainer).filter(Trainer.name == trainer_name).first()
-#             trainer.current_location = loc.name
-#             db.commit()
-#             trainerSchema = TrainerSchema.model_validate(trainer)
-#             db.close()
-#             return JSONResponse(content={"trainer": trainerSchema.model_dump()}, status_code=200)
-#         else:
-#             return JSONResponse(content={"error": "Location not found"}, status_code=404)
-        
-# @app.get("/location/{locationName}")
-# async def get_location(locationName: str):
-#     async with httpx.AsyncClient() as client:
-#         response = await client.get(f"https://pokeapi.co/api/v2/location/{locationName}")
-#         if response.status_code == 200:
-#             data = response.json()
-#             loc =  Location(**data)
-#             return JSONResponse(content={"location": loc.model_dump()}, status_code=200)
-#         else:
-#             return JSONResponse(content={"error": "Location not found"}, status_code=404)
-        
-# @app.get("/randomArea/{location_name}")
-# async def get_random_area(location_name: str):
-#     async with httpx.AsyncClient() as client:
-#         location_response = await get_location(location_name)
-#         location_data = location_response.body.decode()
-        
-#         location_dict = json.loads(location_data)["location"]
-#         location = Location(**location_dict)
-#         random_area = location.areas[random.randint(0, len(location.areas)-1)]
-#         response = await client.get(random_area.url)
-#         if response.status_code == 200:
-#             data = response.json()
-#             return JSONResponse(content=data)
-#         else:
-#             return JSONResponse(content={"error": "Location not found"}, status_code=404)     
-
 @app.post("/capturePokemon/")
 async def capture_pokemon(capturePokemonSchema: CapturePokemonSchema):
         print("finalmente entrou")
@@ -143,6 +97,22 @@ async def delete_trainer(trainer_name: str):
             db.close()
         return JSONResponse(content={"error": "Trainer not found"}, status_code=404)
     
+
+@app.get("/listAllTrainers/")
+async def list_all_trainers():
+    db = SessionLocal()
+    close_db = True
+    trainers = db.query(Trainer).all()
+    if trainers:
+        trainer_schemas = [TrainerSchema.model_validate(trainer) for trainer in trainers]
+        if close_db:
+            db.close()
+        return JSONResponse(content={"trainers": [trainer.model_dump() for trainer in trainer_schemas]}, status_code=200)
+    else:
+        if close_db:
+            db.close()
+        return JSONResponse(content={"error": "No trainers found"}, status_code=404)
+
 @app.delete("/deletePokemon")
 async def delete_pokemon(deleteInfo: DeletePokemonSchema):
     print("entrou no delete")
