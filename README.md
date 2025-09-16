@@ -1,133 +1,184 @@
-# Minha API
+API de Banco de Dados Pokémon
 
-Este pequeno projeto faz parte do material diático da Disciplina **Desenvolvimento Full Stack Avancado** 
+Uma API desenvolvida em FastAPI para gerenciar a persistência de dados de treinadores Pokémon e seus Pokémon.
+📋 Índice
 
-O objetivo aqui é ilutsrar o conteúdo apresentado ao longo das três aulas da disciplina.
+    Visão Geral
 
----
-## Como executar 
+    Relação com a API Principal
 
+    Funcionalidades
 
-Será necessário ter todas as libs python listadas no `requirements.txt` instaladas.
-Após clonar o repositório, é necessário ir ao diretório raiz, pelo terminal, para poder executar os comandos descritos abaixo.
+    Instalação e Execução
 
-> É fortemente indicado o uso de ambientes virtuais do tipo [virtualenv](https://virtualenv.pypa.io/en/latest/installation.html).
+    Execução com Docker
 
-```
-python3 -m venv <myenvpath>
-```
+    Endpoints
 
-```
-source venv/Scripts/activate
-```
+    Estrutura do Projeto
 
-```
-(env)$ pip install -r requirements.txt
-```
+    Tecnologias Utilizadas
 
-Este comando instala as dependências/bibliotecas, descritas no arquivo `requirements.txt`.
+🎯 Visão Geral
 
-Para executar a API  basta executar:
+Esta API é responsável pelo gerenciamento da persistência de dados do sistema de treinadores Pokémon. Ela atua como uma camada de banco de dados, fornecendo operações CRUD (Create, Read, Update, Delete) para treinadores e seus Pokémon.
+🔗 Relação com a API Principal
 
-```
-(env)$  uvicorn main:app 
-```
+Esta API complementa a API principal de treinadores Pokémon, fornecendo os seguintes serviços:
 
-Em modo de desenvolvimento é recomendado executar utilizando o parâmetro reload, que reiniciará o servidor
-automaticamente após uma mudança no código fonte. 
+    Persistência de Dados: Armazena informações de treinadores e Pokémon em um banco SQLite
 
-```
-(env)$  uvicorn main:app --reload
-```
+    Operações de Banco: Implementa todas as operações de criação, leitura, atualização e exclusão
 
-Abra o [http://localhost:5000/#/](http://localhost:5000/#/) no navegador para verificar o status da API em execução.
+    Gerenciamento de Estado: Mantém o estado atual dos treinadores e suas localizações
 
-## Rotas Principais
+    Estatísticas: Controla contadores como número de encontros Pokémon
 
-1. POST /paciente
-Adiciona novo paciente
-Parâmetros (body):
-```
-{
-  "first_name": "João",
-  "last_name": "Silva",
-  "cpf": "12345678901",
-  "email": "joao@email.com",
-  "phone_number": "11999998888",
-  "address": "Rua A, 123"
-}
-```
-Respostas:
-```
-200: Paciente criado com sucesso
-409: CPF ou nome já existente
-400: Erro na requisição
-```
-2. GET /pacientes
-Lista todos os pacientes
-Exemplo de resposta:
-```
-{
-  "pacientes": [
-    {
-      "id": 1,
-      "nome_completo": "João Silva",
-      "cpf": "12345678901",
-      "email": "joao@email.com",
-      "telefone": "11999998888",
-      "endereco": "Rua A, 123"
-    }
-  ]
-}
-```
-4. POST /pacienteCompleto/
-Busca paciente por CPF
-Parâmetros (body)
-```
-{
-  "cpf": "12345678901"
-}
-```
-Respostas:
-```
-200: Dados completos do paciente
-404: Paciente não encontrado
-502: Erro no banco de dados
-```
-5. DELETE /delPaciente
-Remove paciente por CPF
-Parâmetros (query):
-```
-DELETE /delPaciente?cpf=12345678901
-```
-Respostas:
+A API principal (executando na porta 8000) faz chamadas HTTP para esta API (executando na porta 7000) para todas as operações de persistência.
+⚡ Funcionalidades
 
-```
-200: {"mesage": "Produto removido", "id": "12345678901"}
-404: Paciente não encontrado
-```
-6. GET /
-Redireciona para documentação
-Acesso às opções de documentação interativa (Swagger/Redoc/RapiDoc)
+    CRUD de Treinadores: Operações completas para gerenciar treinadores
 
+    Captura de Pokémon: Registro de Pokémon capturados por treinadores
 
-## Modelo de Dados (Patient):
+    Gerenciamento de Localização: Atualização da localização atual dos treinadores
 
-```
-class Patient(Model):
-    id = Column(Integer, primary_key=True)
-    first_name = Column(String)
-    last_name = Column(String)
-    cpf = Column(String, unique=True)
-    email = Column(String)
-    phone_number = Column(String)
-    address = Column(String)
-```
+    Estatísticas de Encontros: Contabilização de encontros Pokémon
 
-## Schemas (Esquemas de Validação):
-```
-PatientSchema: Valida dados para criação
-PatientNameSearchSchema: Valida busca por nome
-PatientFetchSchema: Valida busca por CPF
-PatientDelSchema: Valida exclusão por CPF
-```
+    Operações em Lote: Listagem de todos os treinadores
+
+🚀 Instalação e Execução
+Pré-requisitos
+
+    Python 3.11+
+
+    pip (gerenciador de pacotes Python)
+
+Instalação
+
+    Clone o repositório:
+
+bash
+
+git clone <url-do-repositorio>
+cd <diretorio-do-projeto>
+
+    Instale as dependências:
+
+bash
+
+pip install -r requirements.txt
+
+    Execute a aplicação:
+
+bash
+
+uvicorn main:app --reload --host 0.0.0.0 --port 7000
+
+A API estará disponível em http://localhost:7000
+🐳 Execução com Docker
+Construir a imagem Docker
+bash
+
+docker build -t pokemon-db-api .
+
+Executar o container
+bash
+
+docker run -p 7000:7000 pokemon-db-api
+
+Dockerfile
+
+O Dockerfile utilizado para containerizar a aplicação:
+dockerfile
+
+# Use official Python image
+FROM python:3.11
+
+# Set working directory
+WORKDIR /app
+
+# Copy requirements file
+COPY requirements.txt .
+
+# Install dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy application code
+COPY . .
+
+# Expose port (default for uvicorn)
+EXPOSE 7000
+
+# Start the server with uvicorn
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "7000", "--reload"]
+
+Execução com Docker Compose
+
+Para integrar com a API principal, use o docker-compose.yml fornecido na API principal.
+📡 Endpoints
+👤 Gerenciamento de Treinadores
+GET /getTrainer/{trainer_name}
+
+Retorna informações de um treinador específico.
+POST /createTrainer
+
+Cria um novo treinador.
+DELETE /deleteTrainer/{trainer_name}
+
+Exclui um treinador.
+GET /listAllTrainers/
+
+Lista todos os treinadores cadastrados.
+🗺️ Gerenciamento de Localização
+PATCH /updatePlayerLocation/
+
+Atualiza a localização de um treinador.
+🐾 Gerenciamento de Pokémon
+POST /capturePokemon/
+
+Registra a captura de um Pokémon.
+DELETE /deletePokemon
+
+Exclui um Pokémon de um treinador.
+🩺 Health Check
+GET /
+
+Endpoint raiz com mensagem de boas-vindas.
+GET /ping
+
+Endpoint de health check simples.
+🏗️ Estrutura do Projeto
+text
+
+├── main.py               # Arquivo principal da aplicação FastAPI
+├── models/               # Modelos de dados do SQLAlchemy
+├── schemes.py            # Esquemas Pydantic para validação de dados
+├── requirements.txt      # Dependências do projeto
+├── Dockerfile            # Configuração do container
+├── test.db               # Banco de dados SQLite (gerado automaticamente)
+└── README.md             # Documentação do projeto
+
+🛠️ Tecnologias Utilizadas
+
+    FastAPI: Framework web moderno e rápido para construção de APIs
+
+    SQLAlchemy: ORM para operações de banco de dados
+
+    SQLite: Banco de dados leve para desenvolvimento
+
+    Pydantic: Validação de dados e manipulação de esquemas
+
+    Uvicorn: Servidor ASGI para executar a aplicação
+
+    Docker: Containerização da aplicação
+
+📝 Notas Adicionais
+
+    Esta API utiliza SQLite como banco de dados, armazenado no arquivo test.db
+
+    Todas as operações de banco de dados são realizadas através do ORM SQLAlchemy
+
+    A API é projetada para ser consumida pela API principal de treinadores Pokémon
+
+    O uso do padrão repository com injeção de dependência garante a testabilidade do código
