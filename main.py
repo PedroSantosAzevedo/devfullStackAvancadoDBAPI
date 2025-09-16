@@ -46,6 +46,21 @@ async def capture_pokemon(capturePokemonSchema: CapturePokemonSchema, db: Sessio
     
     return JSONResponse(content={"pokemon": pokemon.model_dump()}, status_code=200)
 
+@app.get("/listPokemon/{trainer_name}", tags=["pokemon"])
+async def list_pokemon(trainer_name: str, db: Session = Depends(get_db)):
+    db_pokemon = db.query(Pokemon).filter(
+        Pokemon.trainer_name == trainer_name
+    ).all()
+    
+    if not db_pokemon:
+        raise HTTPException(status_code=404, detail="No Pokemon found for this trainer")
+    
+    pokemon_schemas = [PokemonSchema.model_validate(pokemon) for pokemon in db_pokemon]
+    return JSONResponse(
+        content={"pokemon": [pokemon.model_dump() for pokemon in pokemon_schemas]}, 
+        status_code=200
+    )
+
 @app.post("/createTrainer", tags=["trainers"])
 async def create_trainer(trainer: TrainerSchema, db: Session = Depends(get_db)):
     db_trainer = Trainer(**trainer.model_dump())
