@@ -1,6 +1,9 @@
 # API de Banco de Dados Pokémon
 
 Uma API desenvolvida em FastAPI para gerenciar a persistência de dados de treinadores Pokémon e seus Pokémon.
+
+![POKEAPIDiagram](https://github.com/user-attachments/assets/c9f530b6-30bd-485e-b10e-a8cd1ac6eac0)
+
 ## 📋 Índice
 
     Visão Geral
