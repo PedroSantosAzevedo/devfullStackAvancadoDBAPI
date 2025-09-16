@@ -1,7 +1,7 @@
-API de Banco de Dados Pokémon
+# API de Banco de Dados Pokémon
 
 Uma API desenvolvida em FastAPI para gerenciar a persistência de dados de treinadores Pokémon e seus Pokémon.
-📋 Índice
+## 📋 Índice
 
     Visão Geral
 
@@ -19,7 +19,7 @@ Uma API desenvolvida em FastAPI para gerenciar a persistência de dados de trein
 
     Tecnologias Utilizadas
 
-🎯 Visão Geral
+## 🎯 Visão Geral
 
 Esta API é responsável pelo gerenciamento da persistência de dados do sistema de treinadores Pokémon. Ela atua como uma camada de banco de dados, fornecendo operações CRUD (Create, Read, Update, Delete) para treinadores e seus Pokémon.
 🔗 Relação com a API Principal
@@ -35,7 +35,7 @@ Esta API complementa a API principal de treinadores Pokémon, fornecendo os segu
     Estatísticas: Controla contadores como número de encontros Pokémon
 
 A API principal (executando na porta 8000) faz chamadas HTTP para esta API (executando na porta 7000) para todas as operações de persistência.
-⚡ Funcionalidades
+## ⚡ Funcionalidades
 
     CRUD de Treinadores: Operações completas para gerenciar treinadores
 
@@ -47,7 +47,7 @@ A API principal (executando na porta 8000) faz chamadas HTTP para esta API (exec
 
     Operações em Lote: Listagem de todos os treinadores
 
-🚀 Instalação e Execução
+## 🚀 Instalação e Execução
 Pré-requisitos
 
     Python 3.11+
@@ -76,48 +76,56 @@ bash
 uvicorn main:app --reload --host 0.0.0.0 --port 7000
 
 A API estará disponível em http://localhost:7000
-🐳 Execução com Docker
+## 🐳 Execução com Docker
 Construir a imagem Docker
-bash
+    bash
 
-docker build -t pokemon-db-api .
+    docker build -t pokemon-db-api .
 
 Executar o container
-bash
+    bash
 
-docker run -p 7000:7000 pokemon-db-api
+    docker run -p 7000:7000 pokemon-db-api
 
 Dockerfile
 
 O Dockerfile utilizado para containerizar a aplicação:
+
 dockerfile
 
-# Use official Python image
-FROM python:3.11
+    Use official Python image
+     
+        FROM python:3.11
 
-# Set working directory
-WORKDIR /app
+Set working directory
+    
+    WORKDIR /app
 
-# Copy requirements file
-COPY requirements.txt .
+Copy requirements file
 
-# Install dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+    COPY requirements.txt .
 
-# Copy application code
-COPY . .
+ Install dependencies
+ 
+    RUN pip install --no-cache-dir -r requirements.txt
 
-# Expose port (default for uvicorn)
-EXPOSE 7000
+Copy application code
 
-# Start the server with uvicorn
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "7000", "--reload"]
+    COPY . .
+
+Expose port (default for uvicorn)
+
+    EXPOSE 7000
+
+ Start the server with uvicorn
+ 
+    CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "7000", "--reload"]
 
 Execução com Docker Compose
 
 Para integrar com a API principal, use o docker-compose.yml fornecido na API principal.
-📡 Endpoints
-👤 Gerenciamento de Treinadores
+## 📡 Endpoints
+### 👤 Gerenciamento de Treinadores
 GET /getTrainer/{trainer_name}
 
 Retorna informações de um treinador específico.
@@ -130,25 +138,25 @@ Exclui um treinador.
 GET /listAllTrainers/
 
 Lista todos os treinadores cadastrados.
-🗺️ Gerenciamento de Localização
+### 🗺️ Gerenciamento de Localização
 PATCH /updatePlayerLocation/
 
 Atualiza a localização de um treinador.
-🐾 Gerenciamento de Pokémon
+###🐾 Gerenciamento de Pokémon
 POST /capturePokemon/
 
 Registra a captura de um Pokémon.
 DELETE /deletePokemon
 
 Exclui um Pokémon de um treinador.
-🩺 Health Check
+### 🩺 Health Check
 GET /
 
 Endpoint raiz com mensagem de boas-vindas.
 GET /ping
 
 Endpoint de health check simples.
-🏗️ Estrutura do Projeto
+## 🏗️ Estrutura do Projeto
 text
 
 ├── main.py               # Arquivo principal da aplicação FastAPI
@@ -159,7 +167,7 @@ text
 ├── test.db               # Banco de dados SQLite (gerado automaticamente)
 └── README.md             # Documentação do projeto
 
-🛠️ Tecnologias Utilizadas
+## 🛠️ Tecnologias Utilizadas
 
     FastAPI: Framework web moderno e rápido para construção de APIs
 
@@ -173,7 +181,7 @@ text
 
     Docker: Containerização da aplicação
 
-📝 Notas Adicionais
+## 📝 Notas Adicionais
 
     Esta API utiliza SQLite como banco de dados, armazenado no arquivo test.db
 
