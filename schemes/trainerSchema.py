@@ -1,6 +1,5 @@
 from pydantic import BaseModel
 from typing import Optional, List
-from datetime import datetime
 from .pokemonSchema import PokemonSchema
 
 class TrainerSchema(BaseModel):
@@ -9,20 +8,20 @@ class TrainerSchema(BaseModel):
     name: str = "John Doe"
     number_of_encounters: int = 0
     current_location: str = "Unknown"
-    # pokemons: List[PokemonSchema] = []
+    id: Optional[int] = None
 
     class Config:
         from_attributes = True
 
 class UpdatePlayerLocationSchema(BaseModel):
-    trainer_name: str
+    trainer_id: int
     new_location: str
 
     class Config:
         from_attributes = True
 
 class CapturePokemonTrainerSchema(BaseModel):
-    name: str
+    id: int
 
     class Config:
         from_attributes = True

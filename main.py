@@ -23,7 +23,7 @@ def get_db():
 
 @app.patch("/updatePlayerLocation/", tags=["trainers"])
 async def update_player_location(playerLocationSchema: PlayerLocationSchema, db: Session = Depends(get_db)):
-    trainer = db.query(Trainer).filter(Trainer.name == playerLocationSchema.trainer_name).first()
+    trainer = db.query(Trainer).filter(Trainer.id == playerLocationSchema.trainer_id).first()
     if not trainer:
         raise HTTPException(status_code=404, detail="Player not found")
     
@@ -35,9 +35,11 @@ async def update_player_location(playerLocationSchema: PlayerLocationSchema, db:
 @app.post("/capturePokemon/", tags=["pokemon"])
 async def capture_pokemon(capturePokemonSchema: CapturePokemonSchema, db: Session = Depends(get_db)):
     pokemon = PokemonSchema(**capturePokemonSchema.pokemon.model_dump())
-    pokemonDB = Pokemon(**pokemon.model_dump(), trainer_name=capturePokemonSchema.trainer.name)
-    
-    trainer = db.query(Trainer).filter(Trainer.name == capturePokemonSchema.trainer.name).first()
+    pokemonDB = Pokemon(**pokemon.model_dump(), trainer_id=capturePokemonSchema.trainer.id)
+
+    trainer = db.query(Trainer).filter(Trainer.id == capturePokemonSchema.trainer.id).first()
+    if not trainer:
+        raise HTTPException(status_code=404, detail="Player not found")
     trainer.number_of_encounters += 1
     
     db.add(pokemonDB)
@@ -46,10 +48,10 @@ async def capture_pokemon(capturePokemonSchema: CapturePokemonSchema, db: Sessio
     
     return JSONResponse(content={"pokemon": pokemon.model_dump()}, status_code=200)
 
-@app.get("/listPokemon/{trainer_name}", tags=["pokemon"])
-async def list_pokemon(trainer_name: str, db: Session = Depends(get_db)):
+@app.get("/listPokemon/{trainer_id}", tags=["pokemon"])
+async def list_pokemon(trainer_id: int, db: Session = Depends(get_db)):
     db_pokemon = db.query(Pokemon).filter(
-        Pokemon.trainer_name == trainer_name
+        Pokemon.trainer_id == trainer_id
     ).all()
     
     if not db_pokemon:
@@ -77,19 +79,19 @@ async def create_trainer(trainer: TrainerSchema, db: Session = Depends(get_db)):
         status_code=200
     )
 
-@app.get("/getTrainer/{trainer_name}", tags=["trainers"])
-async def get_trainer(trainer_name: str, db: Session = Depends(get_db)):
-    trainer = db.query(Trainer).filter(Trainer.name == trainer_name).first()
-    
+@app.get("/getTrainer/{trainer_id}", tags=["trainers"])
+async def get_trainer(trainer_id: int, db: Session = Depends(get_db)):
+    trainer = db.query(Trainer).filter(Trainer.id == trainer_id).first()
+
     if not trainer:
         raise HTTPException(status_code=404, detail="Trainer not found")
     
     trainerSchema = TrainerSchema.model_validate(trainer)
     return JSONResponse(content=trainerSchema.model_dump(), status_code=200)
 
-@app.delete("/deleteTrainer/{trainer_name}", tags=["trainers"])
-async def delete_trainer(trainer_name: str, db: Session = Depends(get_db)):
-    db_trainer = db.query(Trainer).filter(Trainer.name == trainer_name).first()
+@app.delete("/deleteTrainer/{trainer_id}", tags=["trainers"])
+async def delete_trainer(trainer_id: int, db: Session = Depends(get_db)):
+    db_trainer = db.query(Trainer).filter(Trainer.id == trainer_id).first()
     
     if not db_trainer:
         raise HTTPException(status_code=404, detail="Trainer not found")
@@ -124,7 +126,7 @@ async def delete_pokemon(deleteInfo: DeletePokemonSchema, db: Session = Depends(
     db_pokemon = db.query(Pokemon).filter(
         and_(
             Pokemon.id == deleteInfo.pokemon_id, 
-            Pokemon.trainer_name == deleteInfo.trainer_name
+            Pokemon.trainer_id == deleteInfo.trainer_id
         )
     ).first()
     

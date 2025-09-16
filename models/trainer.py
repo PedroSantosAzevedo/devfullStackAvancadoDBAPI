@@ -15,8 +15,12 @@ class Trainer(Base):
     
     pokemons = relationship("Pokemon", back_populates="trainer", cascade="all, delete-orphan")
 
-    def __init__(self, name: str,  number_of_encounters: int, current_location: str):
+    def __init__(self, name: str,  number_of_encounters: int, current_location: str, id: int):
         self.name = name
         self.number_of_encounters = number_of_encounters
         self.current_location = current_location
         self.pokemons = []
+        self.id = id
+
+    class Config:
+        from_attributes = True
