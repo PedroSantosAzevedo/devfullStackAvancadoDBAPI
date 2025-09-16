@@ -166,15 +166,15 @@ Lista todos os Pokémons de um treinador.
 
 Endpoint de health check simples.
 ## 🏗️ Estrutura do Projeto
-text
 
-├── main.py               # Arquivo principal da aplicação FastAPI
-├── models/               # Modelos de dados do SQLAlchemy
-├── schemes.py            # Esquemas Pydantic para validação de dados
-├── requirements.txt      # Dependências do projeto
-├── Dockerfile            # Configuração do container
-├── test.db               # Banco de dados SQLite (gerado automaticamente)
-└── README.md             # Documentação do projeto
+
+    ├── main.py               # Arquivo principal da aplicação FastAPI
+    ├── models/               # Modelos de dados do SQLAlchemy
+    ├── schemes.py            # Esquemas Pydantic para validação de dados
+    ├── requirements.txt      # Dependências do projeto
+    ├── Dockerfile            # Configuração do container
+    ├── test.db               # Banco de dados SQLite (gerado automaticamente)
+    └── README.md             # Documentação do projeto
 
 ## 🛠️ Tecnologias Utilizadas
 
