@@ -126,46 +126,55 @@ Execução com Docker Compose
 Para integrar com a API principal, use o docker-compose.yml fornecido na API principal.
 ## 📡 Endpoints
 ### 👤 Gerenciamento de Treinadores
-GET /getTrainer/{trainer_name}
-
 Retorna informações de um treinador específico.
-POST /createTrainer
+
+    GET /getTrainer/{trainer_name}
 
 Cria um novo treinador.
-DELETE /deleteTrainer/{trainer_name}
+
+    POST /createTrainer
+
 
 Exclui um treinador.
-GET /listAllTrainers/
+
+    DELETE /deleteTrainer/{trainer_name}
+
 
 Lista todos os treinadores cadastrados.
-### 🗺️ Gerenciamento de Localização
-PATCH /updatePlayerLocation/
 
+    GET /listAllTrainers/
+    
+### 🗺️ Gerenciamento de Localização
 Atualiza a localização de um treinador.
-###🐾 Gerenciamento de Pokémon
-POST /capturePokemon/
+
+    PATCH /updatePlayerLocation/
+
+
+### 🐾 Gerenciamento de Pokémon
 
 Registra a captura de um Pokémon.
-DELETE /deletePokemon
 
+     POST /capturePokemon/
 Exclui um Pokémon de um treinador.
-### 🩺 Health Check
-GET /
 
-Endpoint raiz com mensagem de boas-vindas.
-GET /ping
+    DELETE /deletePokemon
+
+Lista todos os Pokémons de um treinador.
+
+    GET /listPokemon
+
 
 Endpoint de health check simples.
 ## 🏗️ Estrutura do Projeto
-text
 
-├── main.py               # Arquivo principal da aplicação FastAPI
-├── models/               # Modelos de dados do SQLAlchemy
-├── schemes.py            # Esquemas Pydantic para validação de dados
-├── requirements.txt      # Dependências do projeto
-├── Dockerfile            # Configuração do container
-├── test.db               # Banco de dados SQLite (gerado automaticamente)
-└── README.md             # Documentação do projeto
+
+    ├── main.py               # Arquivo principal da aplicação FastAPI
+    ├── models/               # Modelos de dados do SQLAlchemy
+    ├── schemes.py            # Esquemas Pydantic para validação de dados
+    ├── requirements.txt      # Dependências do projeto
+    ├── Dockerfile            # Configuração do container
+    ├── test.db               # Banco de dados SQLite (gerado automaticamente)
+    └── README.md             # Documentação do projeto
 
 ## 🛠️ Tecnologias Utilizadas
 
